@@ -6,16 +6,13 @@ require './lib/renter'
 
 
 class Dock
-  # ONLY rents to one person at a time???
-  # how else would log_hour work
 
-  attr_reader :name, :max_rental_time, :renters #, :revenue
+  attr_reader :name, :max_rental_time, :renters
 
   def initialize(name, max_rental_time)
     @name = name
     @max_rental_time = max_rental_time
     @renters = []
-    # @revenue = 0
   end
 
   def rent(boat, renter)

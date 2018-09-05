@@ -138,10 +138,23 @@ class DockTest < Minitest::Test
     assert_equal total, dock.revenue
   end
 
+  def test_it_can_establish_a_list_of_all_boats
+    dock = Dock.new("The Rowing Dock", 3)
+    patrick = Renter.new("Patrick Star", "4242424242424242")
+    not_patrick = Renter.new("Not Patrick Star", "4242424242424242")
 
+    kayak_1 = Boat.new(:kayak, 20)
+    kayak_2 = Boat.new(:kayak, 20)
+    dock.rent(kayak_1, patrick)
+    dock.rent(kayak_2, patrick)
+    dock.log_hour
+    dock.return(kayak_1)
+    dock.log_hour
+    dock.rent(kayak_1, not_patrick)
+    dock.log_hour
 
-
-
+    assert_equal [kayak_1, kayak_2], dock.all_boats
+  end
 
 end
 

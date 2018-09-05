@@ -18,7 +18,7 @@ class DockTest < Minitest::Test
     dock = Dock.new("The Rowing Dock", 3)
     # -- defaults --
     assert_equal [], dock.renters
-    assert_equal 0, dock.revenue
+    # assert_equal 0, dock.revenue
     # -- assigned --
     assert_equal "The Rowing Dock", dock.name
     assert_equal 3, dock.max_rental_time
@@ -47,7 +47,6 @@ class DockTest < Minitest::Test
   end
 
   def test_it_logs_hours
-    # skip
     dock = Dock.new("The Rowing Dock", 3)
     patrick = Renter.new("Patrick Star", "4242424242424242")
 
@@ -72,8 +71,72 @@ class DockTest < Minitest::Test
     assert_equal 1, kayak_2.hours_rented
   end
 
+  def test_it_can_return_a_boat
+    dock = Dock.new("The Rowing Dock", 3)
+    patrick = Renter.new("Patrick Star", "4242424242424242")
 
+    kayak_1 = Boat.new(:kayak, 20)
+    kayak_2 = Boat.new(:kayak, 20)
+    dock.rent(kayak_1, patrick)
+    dock.rent(kayak_2, patrick)
 
+    assert_equal kayak_1, patrick.renting[0][:boat]
+    assert_equal true, patrick.renting[0][:status]
+
+    dock.return(kayak_1)
+    assert_equal kayak_1, patrick.renting[0][:boat]
+    assert_equal false, patrick.renting[0][:status]
+
+    assert_equal kayak_2, patrick.renting[1][:boat]
+    assert_equal true, patrick.renting[1][:status]
+
+    dock.log_hour
+    assert_equal true, patrick.renting[0][:log] == 0
+    assert_equal true, patrick.renting[1][:log] == 1
+  end
+
+  def test_it_gets_revenue
+    dock = Dock.new("The Rowing Dock", 3)
+    patrick = Renter.new("Patrick Star", "4242424242424242")
+
+    kayak_1 = Boat.new(:kayak, 20)
+    kayak_2 = Boat.new(:kayak, 20)
+    dock.rent(kayak_1, patrick)
+    dock.rent(kayak_2, patrick)
+    dock.log_hour
+    dock.log_hour
+    dock.log_hour
+    rev = 20 * 2 * 3
+    assert_equal rev, dock.revenue
+    # -- at max time, so logger will not be incremented
+    dock.log_hour
+    assert_equal rev, dock.revenue
+  end
+
+  def test_it_can_handle_two_renters
+    dock = Dock.new("The Rowing Dock", 3)
+    patrick = Renter.new("Patrick Star", "4242424242424242")
+    not_patrick = Renter.new("Not Patrick Star", "4242424242424242")
+
+    kayak_1 = Boat.new(:kayak, 20)
+    kayak_2 = Boat.new(:kayak, 20)
+    dock.rent(kayak_1, patrick)
+    dock.rent(kayak_2, patrick)
+    dock.log_hour
+    dock.log_hour
+    rev1 = 20 * 2 * 2
+    dock.return(kayak_1)
+    dock.log_hour
+    rev2 = 20 * 1 * 1
+    dock.rent(kayak_1, not_patrick)
+    dock.log_hour
+    dock.log_hour
+    rev3 = 20 * 1 * 2 # and 0 for patrick's overdue boat
+
+    total = rev1 + rev2 + rev3
+
+    assert_equal total, dock.revenue
+  end
 
 
 

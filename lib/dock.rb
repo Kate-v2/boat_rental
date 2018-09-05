@@ -9,13 +9,13 @@ class Dock
   # ONLY rents to one person at a time???
   # how else would log_hour work
 
-  attr_reader :name, :max_rental_time, :revenue, :renters
+  attr_reader :name, :max_rental_time, :renters #, :revenue
 
   def initialize(name, max_rental_time)
     @name = name
     @max_rental_time = max_rental_time
-    @revenue = 0
     @renters = []
+    # @revenue = 0
   end
 
   def rent(boat, renter)
@@ -30,8 +30,9 @@ class Dock
     renters.each { |renter|
       boats = renter.renting
       boats.each { |boat|
-        # binding.pry
-        if boat[:log] != max_rental_time
+        case1 = boat[:status] == true
+        case2 = boat[:log] != max_rental_time
+        if case1 && case2
           boat[:log] += 1
           # technically hours rented can be more than hours charged
           boat[:boat].add_hour
@@ -40,12 +41,34 @@ class Dock
     }
   end
 
-  def return(boat)
-
+  def return(this_boat)
+    renters.each { |renter|
+      boats = renter.renting
+      boats.each { |boat|
+        boat[:boat] == this_boat ? boat[:status] = false : return
+      }
+    }
   end
 
-  def add_to_revenue
-
+  def revenue
+    arr = all_boats
+    sum = 0
+    all_boats.each { |boat|
+      hours = boat.hours_rented
+      price = boat.price_per_hour
+      sum += (hours * price)
+    }
+    return sum
   end
+
+  def all_boats
+    rentals = @renters.map {|renter|
+      boats = renter.renting
+      boats.map { |boat|
+        boat[:boat]
+      }
+    }.flatten!.uniq
+  end
+
 
 end

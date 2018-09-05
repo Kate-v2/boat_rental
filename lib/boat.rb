@@ -4,7 +4,8 @@ require 'pry'
 
 class Boat
 
-  attr_reader :type, :price_per_hour, :hours_rented
+  attr_accessor :hours_rented
+  attr_reader :type, :price_per_hour
 
   def initialize(type, price_per_hour)
     @type = type
